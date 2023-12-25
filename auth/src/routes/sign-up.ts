@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
+import bcrypt from 'bcrypt';
 
 import { User } from '../../models/user.model';
 
@@ -40,9 +41,12 @@ router.post('/api/users/sign-up',
   }
 
   try {
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
     await User.create({
       email,
-      password,
+      password: hashedPassword,
     });
 
     res.status(201).send({
